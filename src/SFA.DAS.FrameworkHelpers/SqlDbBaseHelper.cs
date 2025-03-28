@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using static SFA.DAS.FrameworkHelpers.WaitConfigurationHelper;
 
 namespace SFA.DAS.FrameworkHelpers;
@@ -45,6 +42,8 @@ public class SqlDbBaseHelper(ObjectContext objectContext, string connectionStrin
                 }
             }
 
+            command.CommandTimeout = 300;
+
             int noOfrowsaffected = await command.ExecuteNonQueryAsync();
 
             SetDebugInformation($"{noOfrowsaffected} rows affected in {dbName}");
@@ -53,7 +52,7 @@ public class SqlDbBaseHelper(ObjectContext objectContext, string connectionStrin
         }
         catch (Exception exception)
         {
-            throw new Exception($"Exception occurred while executing SQL query:{Environment.NewLine}{queryToExecute}{Environment.NewLine}Exception: " + exception);
+            throw new Exception($"Exception occurred while executing SQL query:({dbName}){Environment.NewLine}{queryToExecute}{Environment.NewLine}Exception: " + exception);
         }
     }
 
@@ -61,9 +60,9 @@ public class SqlDbBaseHelper(ObjectContext objectContext, string connectionStrin
 
     protected async Task<List<object[]>> GetListOfData(string queryToExecute)
     {
-        var (data, _) = await GetListOfData(queryToExecute, connectionString, null); 
+        var (data, _) = await GetListOfData(queryToExecute, connectionString, null);
 
-        return  data;
+        return data;
     }
 
     protected async Task<(List<object[]> data, int noOfColumns)> GetListOfData(string queryToExecute, string connectionString, Dictionary<string, string> parameters)

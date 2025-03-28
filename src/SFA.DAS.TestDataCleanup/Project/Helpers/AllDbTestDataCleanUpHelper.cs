@@ -2,13 +2,9 @@
 
 public class AllDbTestDataCleanUpHelper(ObjectContext objectContext, DbConfig dbConfig)
 {
-    private string _sqlFileName, _dbName;
-
     private readonly List<string> usersdeleted = [];
 
     private readonly List<string> userswithconstraints = [];
-
-    private List<string[]> _apprenticeIds;
 
     public async Task<(List<string>, List<string>)> CleanUpAllDbTestData(string email) => await CleanUpAllDbTestData([email]);
 
@@ -28,7 +24,11 @@ public class AllDbTestDataCleanUpHelper(ObjectContext objectContext, DbConfig db
 
         for (int i = 0; i < userEmailList.Count; i += batchCount) userEmailListoflist.Add(userEmailList.Skip(i).Take(batchCount).ToList());
 
-        foreach (var item in userEmailListoflist) await CleanUpTestData(easAccDbSqlDataHelper, item);
+        List<Task> tasks = [];
+
+        foreach (var item in userEmailListoflist) tasks.Add(Task.Run(async () => await CleanUpTestData(easAccDbSqlDataHelper, item)));
+
+        await Task.WhenAll(tasks);
 
         return (usersdeleted, userswithconstraints);
     }
@@ -36,8 +36,6 @@ public class AllDbTestDataCleanUpHelper(ObjectContext objectContext, DbConfig db
     private async Task<(TestDataCleanUpEasAccDbSqlDataHelper, List<string[]>)> GetUserEmailList(List<string> email)
     {
         var easAccDbSqlDataHelper = new TestDataCleanUpEasAccDbSqlDataHelper(objectContext, dbConfig);
-
-        SetDetails(easAccDbSqlDataHelper);
 
         return (easAccDbSqlDataHelper, await easAccDbSqlDataHelper.GetUserEmailList(email));
     }
@@ -74,160 +72,135 @@ public class AllDbTestDataCleanUpHelper(ObjectContext objectContext, DbConfig db
         }
         catch (Exception ex)
         {
-            userswithconstraints.Add($"{userEmailList.ToString(",")},{_dbName}({_sqlFileName}){Environment.NewLine}{ex.Message}");
+            userswithconstraints.Add($"{userEmailList.ToString(",")}{Environment.NewLine}{ex.Message}");
         }
     }
 
     private async Task<int> CleanUpTestDataUsingAccountId(List<string> accountidsTodelete)
     {
-        return await CleanUpRsvrTestData(accountidsTodelete)
-            + await CleanUpPrelTestData(accountidsTodelete)
-            + await CleanUpPsrTestData(accountidsTodelete)
-            + await CleanUpPfbeTestData(accountidsTodelete)
-            + await CleanUpEmpFcastTestData(accountidsTodelete)
-            + await CleanUpAppfbTestData(accountidsTodelete)
-            + await CleanUpEmpFinTestData(accountidsTodelete)
-            + await CleanUpEmpIncTestData(accountidsTodelete)
-            + await CleanUpAComtTestData()
-            + await CleanUpEasLtmTestData(accountidsTodelete)
-            + await CleanUpComtTestData(accountidsTodelete);
+        var apprenticeIds = await new GetSupportDataHelper(objectContext, dbConfig).GetApprenticeIds(accountidsTodelete);
+
+        List<Task<int>> tasks = [];
+
+        tasks.Add(Task.Run(async () => await CleanUpRsvrTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpPrelTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpPsrTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpPfbeTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpEmpFcastTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpAppfbTestData(apprenticeIds)));
+        tasks.Add(Task.Run(async () => await CleanUpEmpFinTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpEmpIncTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpAComtTestData(apprenticeIds)));
+        tasks.Add(Task.Run(async () => await CleanUpEasLtmTestData(accountidsTodelete)));
+        tasks.Add(Task.Run(async () => await CleanUpComtTestData(accountidsTodelete)));
+
+        var result = await Task.WhenAll(tasks);
+
+        return await Task.FromResult(result.Sum());
     }
 
     private async Task<int> CleanUpEasDbTestData(TestDataCleanUpEasAccDbSqlDataHelper helper, List<string> emailsToDelete)
     {
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpEasDbTestData(emailsToDelete));
+        return await SetDebugMessage(async () => await helper.CleanUpEasDbTestData(emailsToDelete), helper);
     }
 
     private async Task<int> CleanUpComtTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanupComtSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpComtTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpComtTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpEasLtmTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpEasLtmcSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpEasLtmTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpEasLtmTestData(accountidsTodelete), helper);
     }
 
-    private async Task<int> CleanUpAppfbTestData(List<string> accountidsTodelete)
+    private async Task<int> CleanUpAppfbTestData(List<string[]> apprenticeIds)
     {
         var helper = new TestDataCleanupAppfbqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        _apprenticeIds = await new GetSupportDataHelper(objectContext, dbConfig).GetApprenticeIds(accountidsTodelete);
-
-        return await SetDebugMessage(async () => await helper.CleanUpAppfbTestData(_apprenticeIds));
+        return await SetDebugMessage(async () => await helper.CleanUpAppfbTestData(apprenticeIds), helper);
     }
 
-    private async Task<int> CleanUpAComtTestData()
+    private async Task<int> CleanUpAComtTestData(List<string[]> apprenticeIds)
     {
         var helper = new TestDataCleanupAComtSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpAComtTestData(_apprenticeIds));
+        return await SetDebugMessage(async () => await helper.CleanUpAComtTestData(apprenticeIds), helper);
     }
 
     private async Task<int> CleanUpAppAccDbTestData(List<string> emailsToDelete)
     {
         var helper = new TestDataCleanUpAppAccDbSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpAppAccDbTestData(emailsToDelete));
+        return await SetDebugMessage(async () => await helper.CleanUpAppAccDbTestData(emailsToDelete), helper);
     }
 
     private async Task<int> CleanUpEmpIncTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpEmpIncSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpEmpIncTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpEmpIncTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpEmpFinTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpEmpFinSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpEmpFinTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpEmpFinTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpEmpFcastTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpEmpFcastSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpEmpFcastTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpEmpFcastTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpPfbeTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpPfbeDbSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpPfbeTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpPfbeTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpPsrTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpPsrDbSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpPsrTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpPsrTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpPrelTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpPrelDbSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpPrelTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpPrelTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpRsvrTestData(List<string> accountidsTodelete)
     {
         var helper = new TestDataCleanUpRsvrSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpRsvrTestData(accountidsTodelete));
+        return await SetDebugMessage(async () => await helper.CleanUpRsvrTestData(accountidsTodelete), helper);
     }
 
     private async Task<int> CleanUpUsersDbTestData(List<string> emailsToDelete)
     {
         var helper = new TestDataCleanUpUsersDbSqlDataHelper(objectContext, dbConfig);
 
-        SetDetails(helper);
-
-        return await SetDebugMessage(async () => await helper.CleanUpUsersDbTestData(emailsToDelete));
+        return await SetDebugMessage(async () => await helper.CleanUpUsersDbTestData(emailsToDelete), helper);
     }
 
-    private void SetDetails(TestDataCleanUpSqlDataHelper helper)
+    private async Task<int> SetDebugMessage(Func<Task<int>> func, TestDataCleanUpSqlDataHelper helper)
     {
-        _dbName = helper.dbName;
+        var dbName = helper.dbName;
 
-        _sqlFileName = helper.SqlFileName;
-    }
+        var sqlFileName = helper.SqlFileName;
 
-    private async Task<int> SetDebugMessage(Func<Task<int>> func)
-    {
         int noOfrowsDeleted;
 
         string message;
@@ -236,15 +209,15 @@ public class AllDbTestDataCleanUpHelper(ObjectContext objectContext, DbConfig db
         {
             noOfrowsDeleted = await func();
 
-            message = $"{noOfrowsDeleted} rows deleted from {_dbName}";
+            message = $"{noOfrowsDeleted} rows deleted from {dbName}";
         }
         catch (Exception ex)
         {
             noOfrowsDeleted = 0;
 
-            message = $"FAILED to delete from {_dbName}({_sqlFileName})";
+            message = $"FAILED to delete from {dbName}({sqlFileName})";
 
-            userswithconstraints.Add($"{_dbName}({_sqlFileName}){Environment.NewLine}{ex.Message}");
+            userswithconstraints.Add($"{dbName}({sqlFileName}){Environment.NewLine}{ex.Message}");
         }
 
         usersdeleted.Add(message);
