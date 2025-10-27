@@ -42,7 +42,6 @@ resources:
 pool:
   vmImage: 'windows-latest'
 
-
 stages:
   - template: ../pipeline-templates/stage/playwright-stage.yml
     parameters:
