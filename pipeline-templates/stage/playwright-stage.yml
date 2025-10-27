@@ -9,7 +9,7 @@ stages:
   - stage: Build
     displayName: Build Stage
     jobs:
-      - template: ../code-build.yml
+      - template: ../job/code-build.yml
         parameters:
           BuildConfiguration: $(BuildConfiguration)
           projectsToBuild: |
@@ -22,7 +22,7 @@ stages:
       - group: "TEST DevTest Shared Resources"
       - group: "TEST Automation Suite Variables"
     jobs:
-      - template: ../deploy.yml
+      - template: ../job/code-build.yml
         parameters:
           Environment: TEST
           ServiceConnection: SFA-DAS-DevTest-ARM
@@ -35,7 +35,7 @@ stages:
       - group: "TEST2 DevTest Shared Resources"
       - group: "TEST2 Automation Suite Variables"
     jobs:
-      - template: ../deploy.yml
+      - template: ../job/code-build.yml
         parameters:
           Environment: TEST2
           ServiceConnection: SFA-DAS-DevTest-ARM
@@ -48,7 +48,7 @@ stages:
       - group: "DEMO DevTest Shared Resources"
       - group: "DEMO Automation Suite Variables"
     jobs:
-      - template: ../deploy.yml
+      - template: ../job/code-build.yml
         parameters:
           Environment: DEMO
           ServiceConnection: SFA-DAS-DevTest-ARM
@@ -63,7 +63,7 @@ stages:
       - group: "PreProd Automation Suite Variables"
       - group: ${{ parameters.PreProdSpecificVariableGroup }}
     jobs:
-      - template: ../deploy.yml
+      - template: ../job/code-build.yml
         parameters:
           Environment: PP
           ServiceConnection: SFA-DIG-PreProd-ARM
