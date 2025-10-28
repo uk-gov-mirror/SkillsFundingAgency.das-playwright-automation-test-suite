@@ -7,6 +7,7 @@ parameters:
     type: string
   - name: PreProdSpecificVariableGroup
     type: string
+    default: ''
 
 stages:
   - stage: Build
@@ -64,6 +65,7 @@ stages:
       - group: "PreProd Management Resources"
       - group: "PreProd Shared Resources"
       - group: "PreProd Automation Suite Variables"
+    ${{ if ne(parameters.PreProdSpecificVariableGroup, '') }}:
       - group: ${{ parameters.PreProdSpecificVariableGroup }}
     jobs:
       - template: ../job/deploy.yml
