@@ -48,6 +48,7 @@ stages:
       projectName: $(projectName)
       BuildConfiguration: $(BuildConfiguration)
       deploy: $(Deploy)
+      PreProdSpecificVariableGroup: $(PreProdSpecificVariableGroup)
 
 #   - stage: Build
 #     displayName: Build Stage

@@ -1,4 +1,3 @@
-
 parameters:
   projectName: ''
   BuildConfiguration: ''
@@ -6,10 +5,10 @@ parameters:
   PreProdSpecificVariableGroup: ''
 
 stages:
-  - stage: Build
+  - stage: Build ## Need to check if this is required. 
     displayName: Build Stage
     jobs:
-      - template: ../job/code-build.yml
+      - template: ../job/deploy.yml
         parameters:
           BuildConfiguration: $(BuildConfiguration)
           projectsToBuild: |
@@ -22,7 +21,7 @@ stages:
       - group: "TEST DevTest Shared Resources"
       - group: "TEST Automation Suite Variables"
     jobs:
-      - template: ../job/code-build.yml
+      - template: ../job/deploy.yml
         parameters:
           Environment: TEST
           ServiceConnection: SFA-DAS-DevTest-ARM
@@ -35,7 +34,7 @@ stages:
       - group: "TEST2 DevTest Shared Resources"
       - group: "TEST2 Automation Suite Variables"
     jobs:
-      - template: ../job/code-build.yml
+      - template: ../job/deploy.yml
         parameters:
           Environment: TEST2
           ServiceConnection: SFA-DAS-DevTest-ARM
@@ -48,7 +47,7 @@ stages:
       - group: "DEMO DevTest Shared Resources"
       - group: "DEMO Automation Suite Variables"
     jobs:
-      - template: ../job/code-build.yml
+      - template: ../job/deploy.yml
         parameters:
           Environment: DEMO
           ServiceConnection: SFA-DAS-DevTest-ARM
@@ -63,7 +62,7 @@ stages:
       - group: "PreProd Automation Suite Variables"
       - group: ${{ parameters.PreProdSpecificVariableGroup }}
     jobs:
-      - template: ../job/code-build.yml
+      - template: ../job/deploy.yml
         parameters:
           Environment: PP
           ServiceConnection: SFA-DIG-PreProd-ARM
