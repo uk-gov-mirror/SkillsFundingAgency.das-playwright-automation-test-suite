@@ -17,6 +17,7 @@ variables:
   - group: "Release Automation Suite Variables (Db)"
   - group: "Provider Release Automation Suite Variables"
   - group: "RELEASE APP_APP_as-appswebsite"
+  - group: "PREPROD APP_as-GAA"
   - name: Deploy
     value: $[or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.Reason'], 'PullRequest'))]
   - name: projectName
