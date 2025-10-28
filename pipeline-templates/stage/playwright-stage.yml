@@ -1,18 +1,22 @@
 parameters:
-  projectName: ''
-  BuildConfiguration: ''
-  deploy: ''
-  PreProdSpecificVariableGroup: ''
+  - name: projectName
+    type: string
+  - name: BuildConfiguration
+    type: string
+  - name: deploy
+    type: string
+  - name: PreProdSpecificVariableGroup
+    type: string
 
 stages:
-  - stage: Build ## Need to check if this is required. 
+  - stage: Build
     displayName: Build Stage
     jobs:
-      - template: ../job/deploy.yml
+      - template: ../job/code-build.yml
         parameters:
-          BuildConfiguration: $(BuildConfiguration)
+          BuildConfiguration: ${{ parameters. BuildConfiguration }}
           projectsToBuild: |
-            src/$(projectName)/*.csproj
+            src/${{ parameters.projectName }}/*.csproj
 
   - stage: Deploy_TEST
     dependsOn: Build
@@ -25,7 +29,7 @@ stages:
         parameters:
           Environment: TEST
           ServiceConnection: SFA-DAS-DevTest-ARM
-          projectName: $(projectName)
+          projectName: ${{ parameters.projectName }}
 
   - stage: Deploy_TEST2
     dependsOn: Build
@@ -38,7 +42,7 @@ stages:
         parameters:
           Environment: TEST2
           ServiceConnection: SFA-DAS-DevTest-ARM
-          projectName: $(projectName)
+          projectName: ${{ parameters.projectName }}
 
   - stage: Deploy_DEMO
     dependsOn: Build
@@ -51,7 +55,7 @@ stages:
         parameters:
           Environment: DEMO
           ServiceConnection: SFA-DAS-DevTest-ARM
-          projectName: $(projectName)
+          projectName: ${{ parameters.projectName }}
 
   - stage: Deploy_PP
     dependsOn: Build
@@ -66,4 +70,4 @@ stages:
         parameters:
           Environment: PP
           ServiceConnection: SFA-DIG-PreProd-ARM
-          projectName: $(projectName)
+          projectName: ${{ parameters.projectName }}
