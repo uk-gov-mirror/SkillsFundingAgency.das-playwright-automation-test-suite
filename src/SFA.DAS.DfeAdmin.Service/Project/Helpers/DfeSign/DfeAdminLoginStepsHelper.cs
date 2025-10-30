@@ -26,6 +26,7 @@ public class DfeAdminLoginStepsHelper(ScenarioContext context)
 
     public async Task LoginToAsAssessor2() => await CheckAndLoginToAsAdmin(context.GetUser<AsAssessor2User>());
 
+    public async Task LoginToQfastAsAdmin() => await SubmitValidLoginDetails(context.GetUser<QfastDfeAdminUser>());
     public async Task LoginToAsAdmin() => await SubmitValidLoginDetails(new ASAdminLandingPage(context), GetAsAdminUser());
 
     public async Task LoginToSupportTool(DfeAdminUser dfeAdminUser) => await SubmitValidLoginDetails(new ASEmpSupportToolLandingPage(context), dfeAdminUser);
@@ -37,7 +38,7 @@ public class DfeAdminLoginStepsHelper(ScenarioContext context)
     #region CheckAndLogin
 
     public async Task CheckAndLoginToAsAdmin() => await CheckAndLoginToAsAdmin(GetAsAdminUser());
-
+    
     public async Task CheckAndLoginToAsAdmin(DfeAdminUser dfeAdminUser) => await CheckAndLoginTo(new ASAdminLandingPage(context), dfeAdminUser);
 
     public async Task CheckAndLoginToSupportTool(DfeAdminUser dfeAdminUser) => await CheckAndLoginTo(new ASEmpSupportToolLandingPage(context), dfeAdminUser);
@@ -55,6 +56,7 @@ public class DfeAdminLoginStepsHelper(ScenarioContext context)
 
     #endregion
 
+    
     private async Task CheckAndLoginTo(ASLandingCheckBasePage landingPage, DfeAdminUser dfeAdminUser)
     {
         if (await landingPage.IsPageDisplayed()) await landingPage.ClickStartNowButton();

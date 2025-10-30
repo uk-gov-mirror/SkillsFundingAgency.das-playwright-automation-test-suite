@@ -1,0 +1,12 @@
+﻿global using Microsoft.Playwright;
+global using SFA.DAS.ConfigurationBuilder;
+global using SFA.DAS.DfeAdmin.Service.Project.Helpers;
+global using SFA.DAS.DfeAdmin.Service.Project.Helpers.DfeSign.User;
+global using SFA.DAS.Framework;
+global using SFA.DAS.FrameworkHelpers;
+global using SFA.DAS.Login.Service.Project;
+global using SFA.DAS.ProviderLogin.Service.Project;
+global using SFA.DAS.ProviderLogin.Service.Project.Pages;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using TechTalk.SpecFlow;

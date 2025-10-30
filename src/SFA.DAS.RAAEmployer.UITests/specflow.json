@@ -1,0 +1,17 @@
+{
+  "bindingCulture": {
+    "feature": "en-GB"
+  },
+  "language": {
+    "feature": "en-GB"
+  },
+  "stepAssemblies": [
+    { "assembly": "SFA.DAS.Framework" },
+    { "assembly": "SFA.DAS.EmployerPortal.UITests" },
+    { "assembly": "SFA.DAS.FAA.UITests" }
+  ],
+  "generator": {
+    "allowRowTests": false,
+    "addNonParallelizableMarkerForTags": [ "donotexecuteinparallel" ]
+  }
+}

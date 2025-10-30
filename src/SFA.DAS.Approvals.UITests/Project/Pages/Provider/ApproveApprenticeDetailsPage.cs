@@ -20,7 +20,7 @@ namespace SFA.DAS.Approvals.UITests.Project.Pages.Provider
         private ILocator status => page.Locator("dt:has-text('Status') + dd");
         private ILocator message => page.Locator("h2:has-text('Message') + div.govuk-inset-text");
         private ILocator row(string ULN) => page.Locator($"table tbody tr:has-text('{ULN}')");
-        private ILocator editLink(string name) => page.GetByRole(AriaRole.Link, new() { Name = $"Edit{name}" }).First;
+        private ILocator editLink(string name) => page.GetByRole(AriaRole.Link, new() { Name = $"View{name}" }).First;
         private ILocator deleteLink(string name) => page.GetByRole(AriaRole.Link, new() { Name = $"Delete{name}" }).First;
         private ILocator AddAnotherApprenticeLink => page.Locator("a:has-text('Add another apprentice')");
         private ILocator DeleteThisCohortLink => page.GetByRole(AriaRole.Link, new() { Name = "Delete this cohort" }).First;

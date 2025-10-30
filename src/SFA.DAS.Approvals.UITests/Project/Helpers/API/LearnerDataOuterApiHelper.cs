@@ -1,12 +1,9 @@
 ﻿using RestSharp;
 using SFA.DAS.Approvals.UITests.Project.Helpers.DataHelpers.ApprenticeshipModel;
+using SFA.DAS.LearnerData.Events;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Approvals.UITests.Project.Helpers.API
 {
@@ -26,11 +23,36 @@ namespace SFA.DAS.Approvals.UITests.Project.Helpers.API
 
         public async Task PushNewLearnersDataToAS(List<LearnerDataAPIDataModel> learnersData, int academicYear)
         {
-            var resource = $"/provider/{learnersData.First().ukprn}/academicyears/{academicYear}/learners";
-            var payload = JsonHelper.Serialize(learnersData).ToString();
-            await learnerDataOuterApiClient.PostNewLearners(resource, payload);
-        }
+            var serviceBusHelper = GlobalTestContext.ServiceBus;
 
+            foreach (var learner in learnersData)
+            {
+                var learnerDataEvent = new LearnerDataEvent
+                {
+                    ULN = long.Parse(learner.uln),
+                    UKPRN = long.Parse(learner.ukprn),
+                    FirstName = learner.firstname,
+                    LastName = learner.lastname,
+                    Email = learner.learnerEmail,
+                    DoB = DateTime.Parse(learner.dateOfBirth),
+                    StartDate = DateTime.Parse(learner.startDate),
+                    PlannedEndDate = DateTime.Parse(learner.plannedEndDate),
+                    PercentageLearningToBeDelivered = learner.percentageLearningToBeDelivered,
+                    EpaoPrice = learner.epaoPrice,
+                    TrainingPrice = learner.trainingPrice,
+                    AgreementId = learner.agreementId,
+                    IsFlexiJob = learner.isFlexiJob,
+                    StandardCode = learner.standardCode,
+                    CorrelationId = Guid.NewGuid(),
+                    ReceivedDate = DateTime.UtcNow,
+                    ConsumerReference = learner.consumerReference,
+                    PlannedOTJTrainingHours = learner.plannedOTJTrainingHours,
+                    AcademicYear = academicYear
+                };
+
+                await serviceBusHelper.Publish(learnerDataEvent);
+            }
+        }
 
         public async Task CheckApprenticeIsAvailableInApprovedLearnersList(Apprenticeship apprenticeship)
         {
@@ -40,8 +62,6 @@ namespace SFA.DAS.Approvals.UITests.Project.Helpers.API
             Assert.AreEqual(learnerKey.Trim(), expectedLearningIdKey, $"LearningIdKey key extracted from db [{expectedLearningIdKey}] differs from api response: [{learnerKey.Trim()}]");
 
         }
-
-
 
         public async Task<List<LearnerDataAPIDataModel>> ConvertToLearnerDataAPIDataModel(List<Apprenticeship> listOfApprenticeships)
         {

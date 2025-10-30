@@ -8,6 +8,5 @@
     public class OuterApiAuthTokenConfig
     {
         public string Apim_SubscriptionKey { get; set; }
-
     }
 }

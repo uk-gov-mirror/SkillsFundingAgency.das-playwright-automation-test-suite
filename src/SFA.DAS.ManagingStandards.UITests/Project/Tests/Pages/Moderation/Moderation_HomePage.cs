@@ -9,7 +9,7 @@ public class Moderation_HomePage(ScenarioContext context) : ManagingStandardsBas
 
     public async Task<Moderation_SearchPage> SearchForTrainingProvider()
     {
-        await page.GetByRole(AriaRole.Link, new() { Name = "Search for an apprenticeship" }).Nth(1).ClickAsync();
+        await page.GetByRole(AriaRole.Link, new() { Name = "Search for an apprenticeship training provider" }).ClickAsync();
 
         return await VerifyPageAsync(() => new Moderation_SearchPage(context));
     }

@@ -58,3 +58,38 @@ public class SupportToolScsUser : DfeAdminUser
 {
     public SupportToolScsUser() : base("supporttoolscs") { }
 }
+
+public class QfastDfeAdminUser : DfeAdminUser
+{
+    public QfastDfeAdminUser() : base("qfastdfeuser1") { }
+}
+
+public class QfastDfeAdminUser1 : DfeAdminUser
+{
+    public QfastDfeAdminUser1() : base("qfastdfeuser2") { }
+}
+
+public class QfastAOUser : DfeAdminUser
+{
+    public QfastAOUser() : base("qfastaouser") { }
+}
+
+public class QfastAOUser1 : DfeAdminUser
+{
+    public QfastAOUser1() : base("qfastaouser1") { }
+}
+
+public class QfastAOUser2 : DfeAdminUser
+{
+    public QfastAOUser2() : base("qfastaouser2") { }
+}
+
+public class QfastIFATEUser : DfeAdminUser
+{
+    public QfastIFATEUser() : base("qfastifateuser") { }
+}
+
+public class QfastOFQUALUser : DfeAdminUser
+{
+    public QfastOFQUALUser() : base("qfastofqualuser") { }
+}

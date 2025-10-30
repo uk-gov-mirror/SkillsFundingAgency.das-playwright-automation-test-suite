@@ -19,7 +19,7 @@ namespace SFA.DAS.Approvals.UITests.Project.Pages.Employer
         private ILocator approveRadioOption => page.Locator("label:has-text('Yes, approve and notify training provider')");
         private ILocator doNotApproveRadioOption => page.Locator("label:has-text('No, request changes from training provider')");
         private ILocator messageToEmployerTextBox => page.Locator(".govuk-textarea").First;
-        private ILocator saveAndSubmitButton => page.Locator("button:has-text('Save and submit')");
+        private ILocator SubmitButton => page.Locator("button:has-text('Submit')");
         private ILocator editLink => page.Locator(".edit-apprentice");
         private ILocator editLink2 => page.Locator("table tr").Nth(1).Locator(".edit-apprentice");
         #endregion
@@ -42,7 +42,7 @@ namespace SFA.DAS.Approvals.UITests.Project.Pages.Employer
         internal async Task<ApprenticeDetailsApproved> EmployerApproveCohort()
         {
             await approveRadioOption.ClickAsync();
-            await saveAndSubmitButton.ClickAsync();
+            await SubmitButton.ClickAsync();
             return await VerifyPageAsync(() => new ApprenticeDetailsApproved(context));
         }
 
