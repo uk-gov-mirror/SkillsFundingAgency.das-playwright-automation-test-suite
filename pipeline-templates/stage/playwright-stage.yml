@@ -21,6 +21,7 @@ stages:
 
   - stage: Deploy_TEST
     dependsOn: Build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'))
     displayName: Deploy to TEST
     variables:
       - group: "TEST DevTest Shared Resources"
@@ -34,6 +35,7 @@ stages:
 
   - stage: Deploy_TEST2
     dependsOn: Build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'))
     displayName: Deploy to TEST2
     variables:
       - group: "TEST2 DevTest Shared Resources"
@@ -47,6 +49,7 @@ stages:
 
   - stage: Deploy_DEMO
     dependsOn: Build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'))
     displayName: Deploy to DEMO
     variables:
       - group: "DEMO DevTest Shared Resources"
