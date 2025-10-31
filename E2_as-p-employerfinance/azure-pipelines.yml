@@ -42,7 +42,7 @@ pool:
   vmImage: 'windows-latest'
 
 stages:
-  - template: ../pipeline-templates/stage/playwright-stage.yml
+  - template: ../pipeline-templates/stage/enviroment-stage.yml
     parameters:
       projectName: $(projectName)
       BuildConfiguration: $(BuildConfiguration)
